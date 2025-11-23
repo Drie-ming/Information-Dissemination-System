@@ -6,7 +6,6 @@ import NotFoundPage from "./components/NotFoundPage";
 import ResHomePage from "./components/ResHomePage";
 
 
-
 export const router =createBrowserRouter([
     {
         path: '/',
