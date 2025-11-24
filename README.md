@@ -1,6 +1,6 @@
-git clone 
-open the file 
-go to terminal
-cd frontend
-type npm install
-then npm run dev
+git clone <br/>
+open the file <br/>
+go to terminal<br/>
+cd frontend <br/>
+type npm install <br/>
+then npm run dev <br/>
