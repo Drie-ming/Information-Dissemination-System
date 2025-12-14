@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
 import axios from "axios"
+import { toast } from "sonner";
 import {
   Carousel,
   CarouselContent,
@@ -27,6 +28,7 @@ import {
 
 const ResHomePage = () => {
   const [formData, setFormData] = useState({});
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const apiURL = "http://localhost/InfoDIsSys/backend/index.php?action=";
 
@@ -38,19 +40,26 @@ const ResHomePage = () => {
 
   const handleSumbit = async (event) => {
     event.preventDefault();
-
+    
     try {
-      const responce = await axios.post(`${apiURL}create`, formData);
+      const response = await axios.post(`${apiURL}create`, formData);
+      console.log("Raw response:", response);
 
-      if (responce.data.type === "success") {
-        alert(responce.data.message);
-        console.log(responce.data.message);
-      } else if (responce.data.type === "error") {
-        alert(responce.data.message);
-        console.log(responce.data.message);
+
+      if (response.data.status === "success") {
+        //style on pop up toast not working
+        toast("Registration Successfully", {
+           className:"bg-green-500 text-white text-center font-bold rounded-md p-4",
+        }) 
+        setIsDialogOpen(false);
+        console.log(response.data.message);
+      } else if (response.data.status === "error") {
+       toast("Registration Unsuccessfully")
+        console.log(response.data.message);
       }
     } catch (error) {
       console.log(error);
+      console.log(response.data.status)
     }
   };
 
@@ -73,7 +82,7 @@ const ResHomePage = () => {
                 straight to residents. Featuring Real-time SMS alerts keep you
                 informed of emergency notices, community events, and public
                 service reminders directly on your mobile phone. <br /> <br />
-                <Dialog>
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen} >
                   <DialogTrigger asChild>
                     <Button
                       variant="outline"
@@ -123,7 +132,7 @@ const ResHomePage = () => {
                       </div>
 
                       <DialogFooter>
-                        <DialogClose asChild>
+                        <DialogClose asChilds>
                           <Button
                             variant="outline"
                             className="hover:bg-red-500 mt-3"

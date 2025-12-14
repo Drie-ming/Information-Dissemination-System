@@ -10,10 +10,17 @@ switch ($action) {
        createUser();
         break;
 
+    case 'login':
+        userLogin();
+          break;
+
+    case 'createAnnouncement':
+        createAnnouncements();
+        break;
 
     default:
         $response = [
-            'type' => 'error',
+            'status' => 'error',
             'message' => 'Invalid action'
         ];
         echo json_encode($response);
@@ -35,15 +42,127 @@ function createUser(){
           $sql = "INSERT INTO resphonenum (PurokNum, PhoneNum ) VALUES (?, ?) ";
           $stmt = $connect->prepare($sql);
           $stmt->bind_param("ss", $purokNum, $phoneNum);
-            
+            $stmt->execute();
 
-           if ($stmt->execute()) {
-                echo json_encode(['type' => 'success', 'message' => 'User created successfully']);
+           if($stmt->affected_rows > 0) {
+
+                 $response =[
+                    'status' => 'success',
+                    'message' => 'registration successful'
+                 ];
+                
             } else {
-                echo json_encode(['type' => 'error', 'message' => 'Failed to insert user']);
+
+                $response =[
+                    'status' => 'error',
+                    'message' => 'registration failed'
+                 ];
+                
             }
         } else {
-            echo json_encode(['type' => 'error', 'message' => 'Invalid input']);
+
+             $response =[
+                    'status' => 'error',
+                    'message' => 'Insert to database failed '
+                 ];
+                
         }
+
+         echo json_encode($response);
+         exit;
      }
+     
+    
+}
+
+function userLogin(){
+     global $connect;
+
+     $data = json_decode(file_get_contents('php://input'), true);
+     $userName = $data['username'] ?? null;
+     $password = $data['password'] ?? null;
+     
+     $sql = "SELECT * FROM  baroffusers WHERE userName = ?";
+
+     $stmt = $connect->prepare($sql);    
+     $stmt->bind_param('s', $userName); 
+     $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+         $user = $result->fetch_assoc();
+
+         if ($password === $user['password']) {
+            $_SESSION['id'] = $user['id'];
+            $response = [
+                'status' => 'success',
+                'message' => 'Login successful',
+                'role' => $user['role'],
+                'user' => $user
+            ];
+         } else {
+              $response = [
+                'status' => 'error',
+                'message' => 'Invalid Password'
+            ];
+         }
+         
+    } else {
+        $response = [
+            'status' => 'error',
+            'message' => 'Invalid Username or Password'
+        ];
+    }
+
+    echo json_encode($response);
+    exit;
+      
+}
+
+function createAnnouncements(){
+    global $connect;
+   $data = json_decode(file_get_contents('php://input'), true);
+
+
+   if ($data) {
+     $what = $data['what'] ?? null;
+     $when = $data['when'] ?? null;
+     $where = $data['where'] ?? null;
+     $details = $data['details'] ?? null;
+    
+      if ($what && $when && $where && $details) {
+        $sql = "INSERT INTO announcements (what, `when`, `where`, details  ) VALUES (?, ?, ?, ?) ";
+
+        $stmt = $connect->prepare( $sql);
+        $stmt->bind_param("ssss",  $what, $when,  $where,  $details );
+        $stmt->execute();
+       
+        if($stmt->affected_rows > 0) {
+
+                 $response =[
+                    'status' => 'success',
+                    'message' => 'registration successful'
+                 ];
+                
+            } else {
+
+                $response =[
+                    'status' => 'error',
+                    'message' => 'registration failed'
+                 ];
+                
+            }
+        
+     } else {
+         $response =[
+                    'status' => 'error',
+                    'message' => 'Insert to database failed '
+                 ];
+     }
+
+         echo json_encode($response);
+         exit;
+   }     
+
 }

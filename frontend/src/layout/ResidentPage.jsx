@@ -7,7 +7,7 @@ const ResidentPage = () => {
     return (
         <>
         <Header/>
-        <Outlet/>
+        <Outlet name = "ResOutlet"/>
         <Footer/>
         </>
     );

@@ -1,9 +1,7 @@
 import React from "react";
-import { Button } from "./ui/button";
 
-const Footer = () => {
+const BarOffFooter = () => {
   const yearDate = new Date().getFullYear();
-
   return (
     <>
       <div className="flex items-center justify-center py-16 bg-amber-300 ">
@@ -15,4 +13,4 @@ const Footer = () => {
   );
 };
 
-export default Footer;
+export default BarOffFooter;
