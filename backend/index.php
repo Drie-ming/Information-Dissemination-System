@@ -18,6 +18,10 @@ switch ($action) {
         createAnnouncements();
         break;
 
+    case 'getAnnouncements':
+        getAnnouncements();
+        break;
+
     default:
         $response = [
             'status' => 'error',
@@ -165,4 +169,57 @@ function createAnnouncements(){
          exit;
    }     
 
+}
+
+function getAnnouncements(){
+
+    global $connect;
+
+   try{
+
+    $sql = "SELECT * from announcements";
+    $stmt = $connect->prepare($sql);
+
+    if (!$stmt) {
+            $response = [
+                'status' => 'failed',
+                'message' => 'Error preparing statement',
+            ];
+            echo json_encode($response);
+            return;
+        }
+    
+    if(!$stmt->execute()){
+        $response = [
+            'status' => 'failed',
+            'message' => 'Error fetching Announcements',
+        ];
+        echo json_encode($response);
+        return;
+    };
+
+    $result = $stmt->get_result();
+
+    $announcements = [];
+
+        while ($row = $result->fetch_assoc()) {
+            $announcements[] = $row;
+        }
+
+    $stmt->close();
+
+    $response = [
+        'status' => 'successfull',
+        'announcements' => $announcements,
+    ];
+    echo json_encode($response);
+
+   }catch(Exception $e){
+     $response = [
+            'status' => 'Error',
+            'message' => $e->getMessage(),
+        ];
+        echo json_encode($response);
+   }
+   return;
 }

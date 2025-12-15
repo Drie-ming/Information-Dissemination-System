@@ -1,25 +1,6 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
-
-//example annoucenmentsss to be removed soon
-const announcements = [
-  {
-    id: 1,
-    what: "Libre Tuli (Free Circumcision Drive)",
-    when: "December 20–22, 2025 • 8:00 AM–4:00 PM",
-    where: "Barangay Hall, Libog, Bicol",
-    details:
-      "Licensed doctors and nurses will perform the procedure. Free medicines and wound care instructions will be provided.",
-  },
-  {
-    id: 2,
-    what: "Community Cleanup Drive",
-    when: "December 28, 2025 • 7:00 AM",
-    where: "Town Plaza",
-    details: "Bring cleaning tools. Snacks and water will be provided.",
-  },
-];
 
 export default function BarOffHomePage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -29,10 +10,9 @@ export default function BarOffHomePage() {
     where: "",
     details: "",
   });
+
   const [isSaving, setIsSaving] = useState(false);
   const apiURL = "http://localhost/InfoDIsSys/backend/index.php?action=";
-
-  const [data, setData] = useState(announcements);
 
   const handleAddModal = () => {
     setIsAddModalOpen(true);
@@ -64,10 +44,10 @@ export default function BarOffHomePage() {
           className:
             "bg-green-500 text-white text-center font-bold rounded-md p-4",
         });
-
         setFormData({ what: "", when: "", where: "", details: "" });
         handleAddClose();
         setIsSaving(false);
+        getEvents();
         console.log(response.data.message);
       } else if (response.data.status === "error") {
         toast("Announcement Created Unsuccessfully");
@@ -80,26 +60,49 @@ export default function BarOffHomePage() {
     }
   };
 
-  
+  // dalehon mo naman su edit buda delete functionality
+
   const handleEdit = (id) => {
     alert(`Edit announcement with ID: ${id}`);
-   
   };
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this announcement?")) {
       setData(data.filter((item) => item.id !== id));
-      
     }
   };
 
+  const [announcements, setAnnouncements] = useState([]);
+
+  const getEvents = async () => {
+    try {
+      const response = await axios.get(`${apiURL}getAnnouncements`);
+
+      setAnnouncements(response.data.announcements);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getEvents();
+  }, []);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 5;
+
+  // Calculate indexes
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentRows = announcements.slice(indexOfFirstRow, indexOfLastRow);
+
+  // Total pages
+  const totalPages = Math.ceil(announcements.length / rowsPerPage);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-dvh bg-green-200 relative p-10">
-      <div>
-        <strong>Hello Barangay officer</strong>
-      </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-        <div className="overflow-x-auto rounded-lg shadow ring-1 ring-gray-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+        <div className="overflow-x-auto rounded-lg shadow ring-1 ring-gray-300 mt-10">
           <div className=" flex flex-row justify-between text-left font-semibold p-4 text-gray-600 bg-gray-50 border-b">
             Community Announcements
             <button
@@ -130,19 +133,19 @@ export default function BarOffHomePage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {data.map((item) => (
-                <tr key={item.id} className="odd:bg-gray-50">
+              {currentRows.map((events) => (
+                <tr key={events.id} className="odd:bg-gray-50">
                   <td className="px-4 py-3 align-top text-sm text-gray-800">
-                    {item.what}
+                    {events.what}
                   </td>
                   <td className="px-4 py-3 align-top text-sm text-gray-800">
-                    {item.when}
+                    {events.when}
                   </td>
                   <td className="px-4 py-3 align-top text-sm text-gray-800">
-                    {item.where}
+                    {events.where}
                   </td>
                   <td className="px-4 py-3 align-top text-sm text-gray-800">
-                    {item.details}
+                    {events.details}
                   </td>
                   <td className="px-4 py-3 align-top whitespace-nowrap">
                     <button
@@ -162,6 +165,29 @@ export default function BarOffHomePage() {
               ))}
             </tbody>
           </table>
+          <div className="flex justify-between items-center p-4 bg-white">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded disabled:opacity-50"
+            >
+              Prev
+            </button>
+
+            <span className="text-sm text-gray-600">
+              Page {currentPage} of {totalPages}
+            </span>
+
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
 
@@ -247,8 +273,6 @@ export default function BarOffHomePage() {
           </div>
         </div>
       )}
-
-      
     </div>
   );
 }
