@@ -29,6 +29,7 @@ import {
 const ResHomePage = () => {
   const [formData, setFormData] = useState({});
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [announcements, setAnnouncements] = useState([]);
 
   const apiURL = "http://localhost/InfoDIsSys/backend/index.php?action=";
 
@@ -63,23 +64,23 @@ const ResHomePage = () => {
     }
   };
 
-  const [announcements, setAnnouncements] = useState([]);
-
   const getEvents = async () => {
     try {
       const response = await axios.get(`${apiURL}getAnnouncements`);
 
       setAnnouncements(response.data.announcements);
     } catch (error) {
-      console.log(error);
-      console.log(response.data.status);
+      console.error(error);
     }
-      
   };
-getEvents();
+
+  useEffect(() => {
+    getEvents();
+  }, []);
+
   return (
     <>
-      <div className="flex flex-col items-center justify-center min-h-dvh bg-green-200 relative p-10">
+      <div className="flex flex-col items-center justify-center min-h-dvh bg-[#F1FDF3] relative p-10">
         <div className="flex flex-wrap items-center justify-center mt-10 relative">
           <div className="ml-5">
             <img className="h-150 w-150 " src={IdLogo} alt="I.D Logo" />
@@ -100,25 +101,26 @@ getEvents();
                   <DialogTrigger asChild>
                     <Button
                       variant="outline"
-                      className="text-white text-2xl h-15 bg-blue-400 hover:bg-blue-700 hover:text-white"
+                      className="text-white text-2xl h-15 bg-[#1B211A] hover:bg-blue-700 hover:text-white "
                     >
                       Register your phone number
                     </Button>
                   </DialogTrigger>
 
-                  <DialogContent className="sm:max-w-[425px] bg-green-100">
+                  <DialogContent className="sm:max-w-[425px] bg-green-100 ">
                     <form onSubmit={handleSumbit}>
                       <DialogHeader>
                         <DialogTitle>Phone Registration</DialogTitle>
-                        <DialogDescription>
+                        <DialogDescription className="mt-5 mb-5">
                           Click register when you&apos;re done.
                         </DialogDescription>
                       </DialogHeader>
 
-                      <div className="grid gap-4">
-                        <div className="grid gap-3">
+                      <div className="grid gap-4 ">
+                        <div className="grid gap-3 ">
                           <Label htmlFor="name-1">Purok</Label>
                           <Input
+                            className="border-black border"
                             onChange={handleSumbitChange}
                             type="text"
                             id="name-1"
@@ -133,6 +135,7 @@ getEvents();
                         <div className="grid gap-3">
                           <Label htmlFor="phoneNumber-1">Phone number</Label>
                           <Input
+                            className="border-black border"
                             onChange={handleSumbitChange}
                             type="text"
                             id="phoneNumber-1"
@@ -146,7 +149,7 @@ getEvents();
                       </div>
 
                       <DialogFooter>
-                        <DialogClose asChilds>
+                        <DialogClose asChild>
                           <Button
                             variant="outline"
                             className="hover:bg-red-500 mt-3"
@@ -170,15 +173,15 @@ getEvents();
         </div>
       </div>
 
-      <div className="border-3 flex flex-col items-center justify-center min-h-screen bg-amber-200">
-        <div className="mb-10 font-bold text-3xl">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#F1FDF3]">
+        <div className="mb-10 font-bold text-3xl border-double border-y-10 p-10 rounded-md  border-black">
           <h1>Barangay Announcements</h1>
         </div>
 
         <Carousel
           opts={{ align: "start" }}
           orientation="horizontal"
-          className="w-full max-w-5xl"
+          className="w-full max-w-5xl "
         >
           <CarouselContent className="-ml-1 h-[600px]">
             {announcements.map((event, index) => (
@@ -187,7 +190,7 @@ getEvents();
                 className="pl-1 basis-full md:basis-1/2 lg:basis-1/1 "
               >
                 <div className="p-4">
-                  <Card className="h-[500px] w-full shadow-lg bg-green-200">
+                  <Card className="h-[500px] w-full shadow-lg bg-[#D1E9D2]">
                     <CardContent className="flex flex-col justify-center items-center h-full p-10 space-y-6">
                       <span className="text-3xl font-bold">{event.what}</span>
                       <span className="text-lg text-muted-foreground">
@@ -196,7 +199,6 @@ getEvents();
                       <span className="text-lg text-muted-foreground">
                         {event.where}
                       </span>
-
                       <span className="text-lg text-muted-foreground">
                         {event.details}
                       </span>

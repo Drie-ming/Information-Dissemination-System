@@ -4,6 +4,8 @@ import { toast } from "sonner";
 
 export default function BarOffHomePage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [announcements, setAnnouncements] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     what: "",
     when: "",
@@ -11,7 +13,7 @@ export default function BarOffHomePage() {
     details: "",
   });
 
-  const [isSaving, setIsSaving] = useState(false);
+  
   const apiURL = "http://localhost/InfoDIsSys/backend/index.php?action=";
 
   const handleAddModal = () => {
@@ -72,7 +74,7 @@ export default function BarOffHomePage() {
     }
   };
 
-  const [announcements, setAnnouncements] = useState([]);
+  
 
   const getEvents = async () => {
     try {
@@ -91,19 +93,19 @@ export default function BarOffHomePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
 
-  // Calculate indexes
+  
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
   const currentRows = announcements.slice(indexOfFirstRow, indexOfLastRow);
 
-  // Total pages
+  
   const totalPages = Math.ceil(announcements.length / rowsPerPage);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-dvh bg-green-200 relative p-10">
+    <div className="flex flex-col items-center justify-center min-h-dvh bg-[#99CDA9] relative p-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
         <div className="overflow-x-auto rounded-lg shadow ring-1 ring-gray-300 mt-10">
-          <div className=" flex flex-row justify-between text-left font-semibold p-4 text-gray-600 bg-gray-50 border-b">
+          <div className=" flex flex-row justify-between text-left font-semibold p-4 text-gray-600 bg-[#F1FDF3] border-b">
             Community Announcements
             <button
               onClick={handleAddModal}
@@ -112,8 +114,8 @@ export default function BarOffHomePage() {
               + Add Announcement
             </button>
           </div>
-          <table className="min-w-full divide-y divide-gray-200 bg-white">
-            <thead className="bg-gray-100">
+          <table className="min-w-full divide-y divide-gray-500 bg-[#F1FDF3]">
+            <thead className="">
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
                   What
@@ -134,7 +136,7 @@ export default function BarOffHomePage() {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {currentRows.map((events) => (
-                <tr key={events.id} className="odd:bg-gray-50">
+                <tr key={events.id} className="odd:bg-[#F1FDF3]">
                   <td className="px-4 py-3 align-top text-sm text-gray-800">
                     {events.what}
                   </td>
@@ -165,7 +167,7 @@ export default function BarOffHomePage() {
               ))}
             </tbody>
           </table>
-          <div className="flex justify-between items-center p-4 bg-white">
+          <div className="flex justify-between items-center p-4 bg-[#F1FDF3]">
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
@@ -273,6 +275,10 @@ export default function BarOffHomePage() {
           </div>
         </div>
       )}
+
+      {/* Edit Modal */}
+
+      
     </div>
   );
 }

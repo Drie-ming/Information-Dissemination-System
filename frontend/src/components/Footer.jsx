@@ -6,7 +6,7 @@ const Footer = () => {
 
   return (
     <>
-      <div className="flex items-center justify-center py-16 bg-amber-300 ">
+      <div className="flex items-center justify-center py-16 bg-[#99CDA9] ">
         <div className="font-bold text-3xl ">
           &copy; {yearDate} Barangay Lidong. All rights reserved
         </div>

@@ -45,8 +45,8 @@ const [username, setUsername] = useState("")
 
   return (
     <>
-      <div className="flex items-center justify-center min-h-screen bg-paleWhite">
-        <div className="flex flex-col border-2 border-black items-center p-15 shadow-2xl rounded-lg ">
+      <div className="flex items-center justify-center min-h-screen bg-[#99CDA9] ">
+        <div className="flex flex-col items-center p-15 shadow-2xl  bg-[#E5F4E7] border-black border-double border-10 rounded-xl">
           <div className="text-3xl mb-10">
             Lidong Information Dissemination System
           </div>
