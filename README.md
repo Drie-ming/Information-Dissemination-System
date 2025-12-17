@@ -1,3 +1,4 @@
+Create a folder then open it in vsCode and open the terminal and follow the following steps.<br/>
 Step 1: git clone https://github.com/Drie-ming/Information-Dissemination-System.git <br/>
 Step 2: open the file <br/>
 Step 3: go to terminal<br/>
