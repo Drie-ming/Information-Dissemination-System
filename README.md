@@ -1,6 +1,7 @@
-git clone <br/>
-open the file <br/>
-go to terminal<br/>
-cd frontend <br/>
-type npm install <br/>
-then npm run dev <br/>
+Create a folder and open it in cmd <br/>
+Step 1: git clone https://github.com/Drie-ming/Information-Dissemination-System.git <br/>
+Step 2: open the file on IDE <br/>
+Step 3: go to terminal<br/>
+Step 4: cd frontend <br/>
+Step 5: type npm install <br/>
+Step 6: then npm run dev <br/>
