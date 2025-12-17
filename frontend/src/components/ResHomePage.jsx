@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import IdLogo from "../assets/IdLogo.png";
 import { Card, CardContent } from "@/components/ui/card";
-import { events } from "./exEvents";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";

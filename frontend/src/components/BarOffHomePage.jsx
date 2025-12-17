@@ -4,7 +4,10 @@ import { toast } from "sonner";
 
 export default function BarOffHomePage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [announcements, setAnnouncements] = useState([]);
+  const [currentAnnouncementData, setCurrentAnnouncementData] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     what: "",
@@ -13,7 +16,6 @@ export default function BarOffHomePage() {
     details: "",
   });
 
-  
   const apiURL = "http://localhost/InfoDIsSys/backend/index.php?action=";
 
   const handleAddModal = () => {
@@ -23,6 +25,24 @@ export default function BarOffHomePage() {
   const handleAddClose = () => {
     setIsAddModalOpen(false);
   };
+
+  const handleEditModal = () => {
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditClose = () => {
+    setIsEditModalOpen(false);
+  };
+
+  const handleDeleteModal = () => {
+    setIsDeleteOpen(true);
+  };
+
+  const handleDeleteClose = () => {
+    setIsDeleteOpen(false);
+  };
+
+  //delete functionality naman
 
   const handleAddSumbitChange = (event) => {
     const input = event.target.name;
@@ -62,19 +82,70 @@ export default function BarOffHomePage() {
     }
   };
 
-  // dalehon mo naman su edit buda delete functionality
+  // dalehon mo naman su edit buda delete functionality!!!!!!!!!!!!
 
-  const handleEdit = (id) => {
-    alert(`Edit announcement with ID: ${id}`);
+  const handleEditSumbitChange = (event) => {
+    const { name, value } = event.target;
+    setCurrentAnnouncementData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this announcement?")) {
-      setData(data.filter((item) => item.id !== id));
+  const handelEditSubmit = async (event) => {
+    event.preventDefault();
+    console.log("updated announcements: ", currentAnnouncementData);
+    try {
+      const response = await axios.put(
+        `${apiURL}editAnnouncement`,
+        currentAnnouncementData
+      );
+
+      console.log(response);
+      if (response.data.status === "success") {
+        //style on pop up toast not working
+        toast("Announcement Updated Successfully", {
+          className:
+            "bg-green-500 text-white text-center font-bold rounded-md p-4",
+        });
+        handleEditClose();
+        setIsSaving(false);
+        getEvents();
+        console.log(response.data.message);
+      } else if (response.data.status === "error") {
+        toast("Announcement Updated Unsuccessfully");
+        console.log(response.data.message);
+        setIsSaving(false);
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
-  
+  const handleDelete = async (id) => {
+
+    try {
+      const response = await axios.delete(`${apiURL}deleteAnnouncements`, {
+        data: { id },
+      });
+
+      if (response.data.status === "success") {
+        //style on pop up toast not working
+        toast("Announcement Deleted Successfully", {
+          toastClassName:
+            "bg-green-500 text-white text-center font-bold rounded-md p-4",
+        });
+        handleDeleteClose();
+        getEvents();
+        console.log(response.data.message);
+      } else if (response.data.status === "error") {
+        toast("Announcement Delete Unsuccessfully");
+        console.log(response.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const getEvents = async () => {
     try {
@@ -93,12 +164,10 @@ export default function BarOffHomePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
 
-  
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
   const currentRows = announcements.slice(indexOfFirstRow, indexOfLastRow);
 
-  
   const totalPages = Math.ceil(announcements.length / rowsPerPage);
 
   return (
@@ -151,13 +220,18 @@ export default function BarOffHomePage() {
                   </td>
                   <td className="px-4 py-3 align-top whitespace-nowrap">
                     <button
-                      onClick={() => handleEdit(item.id)}
+                      onClick={() => {
+                        setCurrentAnnouncementData(events), handleEditModal();
+                      }}
                       className="inline-block bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 rounded mr-2"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(item.id)}
+                      onClick={() => {
+                        setCurrentAnnouncementData(events);
+                        handleDeleteModal();
+                      }}
                       className="inline-block bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded"
                     >
                       Delete
@@ -192,6 +266,7 @@ export default function BarOffHomePage() {
           </div>
         </div>
       </div>
+
 
       {/* add modal */}
       {isAddModalOpen && (
@@ -276,9 +351,128 @@ export default function BarOffHomePage() {
         </div>
       )}
 
-      {/* Edit Modal */}
 
-      
+
+      {/* Edit Modal */}
+      {isEditModalOpen && currentAnnouncementData && (
+        <div className="fixed inset-0 flex items-center justify-center bg-opacity-50 backdrop-blur-md z-50">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+            <h3 className="text-lg font-semibold mb-4">Edit Announcement</h3>
+            <form onSubmit={handelEditSubmit} className="space-y-4 ">
+              <div>
+                <input
+                  type="number"
+                  name="id"
+                  value={currentAnnouncementData.id}
+                  onChange={handleEditSumbitChange}
+                  hidden
+                />
+                <label className="block text-sm font-medium text-gray-700">
+                  What
+                </label>
+                <input
+                  type="text"
+                  name="what"
+                  value={currentAnnouncementData.what}
+                  onChange={handleEditSumbitChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-green-500 focus:border-green-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  When
+                </label>
+                <input
+                  type="text"
+                  name="when"
+                  value={currentAnnouncementData.when}
+                  onChange={handleEditSumbitChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-green-500 focus:border-green-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Where
+                </label>
+                <input
+                  type="text"
+                  name="where"
+                  value={currentAnnouncementData.where}
+                  onChange={handleEditSumbitChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-green-500 focus:border-green-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Details
+                </label>
+                <textarea
+                  name="details"
+                  value={currentAnnouncementData.details}
+                  onChange={handleEditSumbitChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-green-500 focus:border-green-500"
+                  rows="3"
+                  required
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={handleEditClose}
+                  className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className={`px-4 py-2 rounded-md text-white ${
+                    isSaving
+                      ? "bg-green-300 cursor-not-allowed"
+                      : "bg-green-600 hover:bg-green-700"
+                  }`}
+                >
+                  {isSaving ? "Saving..." : "Save"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+
+
+      {/* Delete Modal */}
+      {isDeleteOpen && currentAnnouncementData && (
+        <div class="fixed inset-0 backdrop-blur-md bg-opacity-50  flex items-center justify-center z-50">
+
+        <div class="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
+          <h2 class="text-lg font-semibold text-gray-800 mb-2">
+            Are you absolutely sure?
+          </h2>
+          <p class="text-sm text-gray-600 mb-6">
+            This action cannot be undone. This will permanently delete the
+            announcement and remove it from our servers.
+          </p>
+          <div class="flex justify-end space-x-3">
+            <button
+             class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+              Cancel
+            </button>
+            <button 
+            onClick={() => handleDelete(currentAnnouncementData.id)}
+             class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+              Continue
+            </button>
+          </div>
+        </div>
+      </div>
+      )}
+
+
     </div>
   );
 }

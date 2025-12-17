@@ -7,12 +7,12 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 switch ($action) {
 
     case 'create':
-       createUser();
+        createUser();
         break;
 
     case 'login':
         userLogin();
-          break;
+        break;
 
     case 'createAnnouncement':
         createAnnouncements();
@@ -20,6 +20,14 @@ switch ($action) {
 
     case 'getAnnouncements':
         getAnnouncements();
+        break;
+
+    case 'editAnnouncement':
+        editAnnouncements();
+        break;
+
+    case 'deleteAnnouncements':
+        deleteAnnouncements();
         break;
 
     default:
@@ -33,71 +41,73 @@ switch ($action) {
 }
 
 
-function createUser(){
+function createUser()
+{
     global $connect;
 
-     $data = json_decode(file_get_contents('php://input'), true);
+    $data = json_decode(file_get_contents('php://input'), true);
 
-     if($data){ 
+    if ($data) {
         $purokNum = $data['PurokNum'] ?? '';
         $phoneNum = $data['phoneNumber'] ?? '';
 
-        if($purokNum && $phoneNum){
-          $sql = "INSERT INTO resphonenum (PurokNum, PhoneNum ) VALUES (?, ?) ";
-          $stmt = $connect->prepare($sql);
-          $stmt->bind_param("ss", $purokNum, $phoneNum);
+        if ($purokNum && $phoneNum) {
+            $sql = "INSERT INTO resphonenum (PurokNum, PhoneNum ) VALUES (?, ?) ";
+            $stmt = $connect->prepare($sql);
+            $stmt->bind_param("ss", $purokNum, $phoneNum);
             $stmt->execute();
 
-           if($stmt->affected_rows > 0) {
+            if ($stmt->affected_rows > 0) {
 
-                 $response =[
+                $response = [
                     'status' => 'success',
                     'message' => 'registration successful'
-                 ];
-                
+                ];
+
             } else {
 
-                $response =[
+                $response = [
                     'status' => 'error',
                     'message' => 'registration failed'
-                 ];
-                
+                ];
+
             }
         } else {
 
-             $response =[
-                    'status' => 'error',
-                    'message' => 'Insert to database failed '
-                 ];
-                
+            $response = [
+                'status' => 'error',
+                'message' => 'Insert to database failed '
+            ];
+
         }
 
-         echo json_encode($response);
-         exit;
-     }
-     
-    
+        echo json_encode($response);
+        exit;
+    }
+
+
 }
 
-function userLogin(){
-     global $connect;
+function userLogin()
+{
+    global $connect;
 
-     $data = json_decode(file_get_contents('php://input'), true);
-     $userName = $data['username'] ?? null;
-     $password = $data['password'] ?? null;
-     
-     $sql = "SELECT * FROM  baroffusers WHERE userName = ?";
+    $data = json_decode(file_get_contents('php://input'), true);
+    $userName = $data['username'] ?? null;
+    $password = $data['password'] ?? null;
 
-     $stmt = $connect->prepare($sql);    
-     $stmt->bind_param('s', $userName); 
-     $stmt->execute();
+    $sql = "SELECT * FROM  baroffusers WHERE userName = ?";
+
+    $stmt = $connect->prepare($sql);
+    $stmt->bind_param('s', $userName);
+    $stmt->execute();
 
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-         $user = $result->fetch_assoc();
+        $user = $result->fetch_assoc();
 
-         if ($password === $user['password']) {
+        if ($password === $user['password']) {
             $_SESSION['id'] = $user['id'];
             $response = [
                 'status' => 'success',
@@ -105,13 +115,13 @@ function userLogin(){
                 'role' => $user['role'],
                 'user' => $user
             ];
-         } else {
-              $response = [
+        } else {
+            $response = [
                 'status' => 'error',
                 'message' => 'Invalid Password'
             ];
-         }
-         
+        }
+
     } else {
         $response = [
             'status' => 'error',
@@ -121,66 +131,68 @@ function userLogin(){
 
     echo json_encode($response);
     exit;
-      
+
 }
 
-function createAnnouncements(){
+function createAnnouncements()
+{
     global $connect;
-   $data = json_decode(file_get_contents('php://input'), true);
+    $data = json_decode(file_get_contents('php://input'), true);
 
 
-   if ($data) {
-     $what = $data['what'] ?? null;
-     $when = $data['when'] ?? null;
-     $where = $data['where'] ?? null;
-     $details = $data['details'] ?? null;
-    
-      if ($what && $when && $where && $details) {
-        $sql = "INSERT INTO announcements (what, `when`, `where`, details  ) VALUES (?, ?, ?, ?) ";
+    if ($data) {
+        $what = $data['what'] ?? null;
+        $when = $data['when'] ?? null;
+        $where = $data['where'] ?? null;
+        $details = $data['details'] ?? null;
 
-        $stmt = $connect->prepare( $sql);
-        $stmt->bind_param("ssss",  $what, $when,  $where,  $details );
-        $stmt->execute();
-       
-        if($stmt->affected_rows > 0) {
+        if ($what && $when && $where && $details) {
+            $sql = "INSERT INTO announcements (what, `when`, `where`, details  ) VALUES (?, ?, ?, ?) ";
 
-                 $response =[
+            $stmt = $connect->prepare($sql);
+            $stmt->bind_param("ssss", $what, $when, $where, $details);
+            $stmt->execute();
+
+            if ($stmt->affected_rows > 0) {
+
+                $response = [
                     'status' => 'success',
                     'message' => 'registration successful'
-                 ];
-                
+                ];
+
             } else {
 
-                $response =[
+                $response = [
                     'status' => 'error',
                     'message' => 'registration failed'
-                 ];
-                
-            }
-        
-     } else {
-         $response =[
-                    'status' => 'error',
-                    'message' => 'Insert to database failed '
-                 ];
-     }
+                ];
 
-         echo json_encode($response);
-         exit;
-   }     
+            }
+
+        } else {
+            $response = [
+                'status' => 'error',
+                'message' => 'Insert to database failed '
+            ];
+        }
+
+        echo json_encode($response);
+        exit;
+    }
 
 }
 
-function getAnnouncements(){
+function getAnnouncements()
+{
 
     global $connect;
 
-   try{
+    try {
 
-    $sql = "SELECT * from announcements";
-    $stmt = $connect->prepare($sql);
+        $sql = "SELECT * from announcements";
+        $stmt = $connect->prepare($sql);
 
-    if (!$stmt) {
+        if (!$stmt) {
             $response = [
                 'status' => 'failed',
                 'message' => 'Error preparing statement',
@@ -188,38 +200,126 @@ function getAnnouncements(){
             echo json_encode($response);
             return;
         }
-    
-    if(!$stmt->execute()){
-        $response = [
-            'status' => 'failed',
-            'message' => 'Error fetching Announcements',
-        ];
-        echo json_encode($response);
-        return;
-    };
 
-    $result = $stmt->get_result();
+        if (!$stmt->execute()) {
+            $response = [
+                'status' => 'failed',
+                'message' => 'Error fetching Announcements',
+            ];
+            echo json_encode($response);
+            return;
+        }
+        ;
 
-    $announcements = [];
+        $result = $stmt->get_result();
+
+        $announcements = [];
 
         while ($row = $result->fetch_assoc()) {
             $announcements[] = $row;
         }
 
-    $stmt->close();
+        $stmt->close();
 
-    $response = [
-        'status' => 'successfull',
-        'announcements' => $announcements,
-    ];
-    echo json_encode($response);
+        $response = [
+            'status' => 'successfull',
+            'announcements' => $announcements,
+        ];
+        echo json_encode($response);
 
-   }catch(Exception $e){
-     $response = [
+    } catch (Exception $e) {
+        $response = [
             'status' => 'Error',
             'message' => $e->getMessage(),
         ];
         echo json_encode($response);
-   }
-   return;
+    }
+    return;
+}
+
+function editAnnouncements()
+{
+    global $connect;
+
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    $id = $data['id'] ?? null;
+    $what = $data['what'] ?? null;
+    $when = $data['when'] ?? null;
+    $where = $data['where'] ?? null;
+    $details = $data['details'] ?? null;
+
+
+    if ($id && $what && $when && $where && $details) {
+
+        $sql = "UPDATE announcements SET what = ? , `when`= ? , `where` = ?, details = ? WHERE id = ? ";
+
+        $stmt = $connect->prepare($sql);
+        $stmt->bind_param("ssssi", $what, $when, $where, $details, $id);
+
+        if ($stmt->execute()) {
+
+            $response = [
+                'status' => 'success',
+                'message' => 'Update successfully'
+            ];
+
+        } else {
+
+            $response = [
+                'status' => 'error',
+                'message' => 'Update failed'
+            ];
+
+        }
+
+    } else {
+        $response = [
+            'status' => 'error',
+            'message' => 'Update to database failed '
+        ];
+    }
+
+    echo json_encode($response);
+    exit;
+}
+
+
+function deleteAnnouncements()
+{
+
+    global $connect;
+
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    $id = $data['id'] ?? null;
+
+    if ($id) {
+
+        $sql = "DELETE from announcements WHERE id = ?";
+        $stmt = $connect->prepare($sql);
+        $stmt->bind_param("i", $id);
+
+        if ($stmt->execute()) {
+            $response = [
+                'status' => 'success',
+                'message' => 'Deleted successfully'
+            ];
+        } else {
+            $response = [
+                'status' => 'error',
+                'message' => 'Delete failed'
+            ];
+        }
+
+    } else {
+        $response = [
+            'status' => 'error',
+            'message' => 'Delete on database failed '
+        ];
+    }
+
+    echo json_encode($response);
+    exit;
+
 }
